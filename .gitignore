@@ -1,3 +1,4 @@
 .idea
 
 configs/config.static.json
+/go.sum

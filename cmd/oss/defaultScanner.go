@@ -2,13 +2,14 @@ package oss
 
 import (
 	"domain-threat-intelligence-agent/cmd/core/entities"
+	"domain-threat-intelligence-agent/cmd/core/entities/jobEntities"
 	"errors"
 	"net/http"
 )
 
 type OpenSourceScanner struct {
 	Config entities.ScannerConfig
-	Client http.Client
+	Client *http.Client
 }
 
 func (s *OpenSourceScanner) GetConfig() entities.ScannerConfig {
@@ -33,14 +34,10 @@ func (s *OpenSourceScanner) SetConfig(config entities.ScannerConfig) error {
 	return nil
 }
 
-func (s *OpenSourceScanner) ScanTarget(target string) ([]byte, error) {
+func (s *OpenSourceScanner) ScanTarget(target jobEntities.Target, timeout uint64, retries uint64) ([]byte, error) {
 	return nil, errors.New("not implemented")
 }
 
-type IOpenSourceScanner interface {
-	// GetConfig and SetConfig required to manage scanner config, so the scanner can authorize in provided service
-	GetConfig() entities.ScannerConfig
-	SetConfig(entities.ScannerConfig) error
-
-	ScanTarget(target string) ([]byte, error)
+func (s *OpenSourceScanner) IsActive() bool {
+	return s.Client != nil && s.Config.Host != "" && s.Config.APIKey != ""
 }
