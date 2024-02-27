@@ -1,9 +1,11 @@
 package crowdSec
 
 import (
+	"bytes"
 	"domain-threat-intelligence-agent/cmd/core/entities"
 	"domain-threat-intelligence-agent/cmd/core/entities/jobEntities"
 	"domain-threat-intelligence-agent/cmd/oss"
+	"encoding/json"
 	"errors"
 	"log/slog"
 	"net/http"
@@ -58,5 +60,15 @@ func (s *ScannerImpl) ScanTarget(target jobEntities.Target, timeout, retries uin
 		return nil, errors.New("unsupported host type by CrowdSec")
 	}
 
-	return content, err
+	return bytes.Join([][]byte{s.Sign(), content}, []byte("\n")), err
+}
+
+func (s *ScannerImpl) Sign() []byte {
+	signature := jobEntities.Signature{
+		Type:     jobEntities.JOB_TYPE_OSS,
+		Provider: jobEntities.OSS_PROVIDER_CROWD_SEC,
+	}
+
+	b, _ := json.Marshal(signature)
+	return b
 }

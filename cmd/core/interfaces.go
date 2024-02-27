@@ -22,4 +22,7 @@ type IProviderScanner interface {
 	ScanTarget(target jobEntities.Target, timeout, retries uint64) ([]byte, error)
 
 	IsActive() bool
+
+	// Sign is needed to pass task data to requesting user. Contains task type and additional data
+	Sign() []byte
 }

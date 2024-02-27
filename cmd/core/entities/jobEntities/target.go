@@ -1,8 +1,8 @@
 package jobEntities
 
 type Target struct {
-	Host string     `json:"BaseURL"`
-	Type TargetType `json:"Type"`
+	Host string     `json:"host"`
+	Type TargetType `json:"type"`
 }
 
 type TargetType uint64

@@ -182,6 +182,9 @@ enum HostType {
 message HostAuditReport {
   uint64 tasksLeft = 1;
   bytes content = 2;
+
+  // TODO: maybe do second bytes field to contain task data
+
   bool isSuccessful = 3;
 }
 

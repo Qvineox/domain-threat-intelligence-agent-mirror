@@ -227,11 +227,11 @@ func TestScanners(t *testing.T) {
 	//})
 
 	t.Run("virusTotal scanner tests", func(t *testing.T) {
-		scanner = virusTotal.NewScannerImpl("", "")
+		scanner = virusTotal.NewScannerImpl("a2720b4c12eee2e0f318049950386c0fabfd4ce6cd75001ed65c0c528d08372a", "")
 
-		//report, err := scanner.ScanTarget(jobEntities.Target{Host: "8.8.8.8", Type: jobEntities.HOST_TYPE_CIDR}, 1000, 3)
-		//require.NoError(t, err)
-		//require.NotNil(t, report)
+		report, err := scanner.ScanTarget(jobEntities.Target{Host: "8.8.8.8", Type: jobEntities.HOST_TYPE_CIDR}, 1000, 3)
+		require.NoError(t, err)
+		require.NotNil(t, report)
 
 		//report, err := scanner.ScanTarget(jobEntities.Target{Host: "https://gitlab.qvineox.ru/", Type: jobEntities.HOST_TYPE_URL}, 1000, 3)
 		//require.NoError(t, err)
