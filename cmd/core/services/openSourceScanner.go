@@ -54,11 +54,6 @@ func (s *OpenSourceScannerImpl) StartTasksExecution(ctx context.Context, tasks [
 }
 
 func startScans(ctx context.Context, scanner core.IProviderScanner, tasks []jobEntities.Target, timings jobEntities.Timings, c chan []byte, e chan error, wg *sync.WaitGroup) {
-	if tasks == nil || len(tasks) == 0 {
-		wg.Done()
-		return
-	}
-
 	//if scanner == nil || !scanner.IsActive() {
 	if scanner == nil {
 		for range tasks {
@@ -87,7 +82,7 @@ taskProcessing:
 		default:
 			bytes, err := scanner.ScanTarget(t, timings.Timeout, timings.Retries)
 			if err != nil {
-				slog.Error(fmt.Sprintf("failed to scan target '%s' via '%s'", t.Host, scanner.GetConfig().BaseURL))
+				slog.Error(fmt.Sprintf("failed to scan target '%s' via '%s': %s", t.Host, scanner.GetConfig().BaseURL, err.Error()))
 				e <- err
 			} else {
 				c <- bytes

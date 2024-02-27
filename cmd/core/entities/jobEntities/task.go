@@ -20,7 +20,7 @@ const (
 	OSS_PROVIDER_IP_WHO_IS
 )
 
-var SupportedByVirusTotal = []TargetType{HOST_TYPE_CIDR, HOST_TYPE_URL, HOST_TYPE_DOMAIN}
+var SupportedByVirusTotal = []TargetType{HOST_TYPE_CIDR, HOST_TYPE_DOMAIN}
 var SupportedByIPQualityScore = []TargetType{HOST_TYPE_CIDR, HOST_TYPE_URL, HOST_TYPE_EMAIL}
 var SupportedByShodan = []TargetType{HOST_TYPE_CIDR}
 var SupportedByIPWhoIS = []TargetType{HOST_TYPE_CIDR}

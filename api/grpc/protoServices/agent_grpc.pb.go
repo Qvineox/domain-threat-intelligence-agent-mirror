@@ -18,7 +18,7 @@ import (
 // Requires gRPC-Go v1.32.0 or later.
 const _ = grpc.SupportPackageIsVersion7
 
-// ConnectionClient is the client API for Connection Service.
+// ConnectionClient is the client API for Connection service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type ConnectionClient interface {
@@ -42,7 +42,7 @@ func (c *connectionClient) Hello(ctx context.Context, in *SecurityToken, opts ..
 	return out, nil
 }
 
-// ConnectionServer is the server API for Connection Service.
+// ConnectionServer is the server API for Connection service.
 // All implementations must embed UnimplementedConnectionServer
 // for forward compatibility
 type ConnectionServer interface {
@@ -59,7 +59,7 @@ func (UnimplementedConnectionServer) Hello(context.Context, *SecurityToken) (*Se
 }
 func (UnimplementedConnectionServer) mustEmbedUnimplementedConnectionServer() {}
 
-// UnsafeConnectionServer may be embedded to opt out of forward compatibility for this Service.
+// UnsafeConnectionServer may be embedded to opt out of forward compatibility for this service.
 // Use of this interface is not recommended, as added methods to ConnectionServer will
 // result in compilation errors.
 type UnsafeConnectionServer interface {
@@ -88,7 +88,7 @@ func _Connection_Hello_Handler(srv interface{}, ctx context.Context, dec func(in
 	return interceptor(ctx, in, info, handler)
 }
 
-// Connection_ServiceDesc is the grpc.ServiceDesc for Connection Service.
+// Connection_ServiceDesc is the grpc.ServiceDesc for Connection service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var Connection_ServiceDesc = grpc.ServiceDesc{
@@ -104,15 +104,12 @@ var Connection_ServiceDesc = grpc.ServiceDesc{
 	Metadata: "agent.proto",
 }
 
-// JobsClient is the client API for Jobs Service.
+// JobsClient is the client API for Jobs service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type JobsClient interface {
 	// StartJob accepts Job with all required params, streams back all queried and found results
 	StartJob(ctx context.Context, in *Job, opts ...grpc.CallOption) (Jobs_StartJobClient, error)
-	TerminateJob(ctx context.Context, in *JobTermination, opts ...grpc.CallOption) (*None, error)
-	RetrieveQueue(ctx context.Context, in *None, opts ...grpc.CallOption) (*Queue, error)
-	RetrieveQueueStatus(ctx context.Context, in *None, opts ...grpc.CallOption) (*QueueStatus, error)
 }
 
 type jobsClient struct {
@@ -155,42 +152,12 @@ func (x *jobsStartJobClient) Recv() (*HostAuditReport, error) {
 	return m, nil
 }
 
-func (c *jobsClient) TerminateJob(ctx context.Context, in *JobTermination, opts ...grpc.CallOption) (*None, error) {
-	out := new(None)
-	err := c.cc.Invoke(ctx, "/contracts.Jobs/TerminateJob", in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *jobsClient) RetrieveQueue(ctx context.Context, in *None, opts ...grpc.CallOption) (*Queue, error) {
-	out := new(Queue)
-	err := c.cc.Invoke(ctx, "/contracts.Jobs/RetrieveQueue", in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *jobsClient) RetrieveQueueStatus(ctx context.Context, in *None, opts ...grpc.CallOption) (*QueueStatus, error) {
-	out := new(QueueStatus)
-	err := c.cc.Invoke(ctx, "/contracts.Jobs/RetrieveQueueStatus", in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-// JobsServer is the server API for Jobs Service.
+// JobsServer is the server API for Jobs service.
 // All implementations must embed UnimplementedJobsServer
 // for forward compatibility
 type JobsServer interface {
 	// StartJob accepts Job with all required params, streams back all queried and found results
 	StartJob(*Job, Jobs_StartJobServer) error
-	TerminateJob(context.Context, *JobTermination) (*None, error)
-	RetrieveQueue(context.Context, *None) (*Queue, error)
-	RetrieveQueueStatus(context.Context, *None) (*QueueStatus, error)
 	mustEmbedUnimplementedJobsServer()
 }
 
@@ -201,18 +168,9 @@ type UnimplementedJobsServer struct {
 func (UnimplementedJobsServer) StartJob(*Job, Jobs_StartJobServer) error {
 	return status.Errorf(codes.Unimplemented, "method StartJob not implemented")
 }
-func (UnimplementedJobsServer) TerminateJob(context.Context, *JobTermination) (*None, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method TerminateJob not implemented")
-}
-func (UnimplementedJobsServer) RetrieveQueue(context.Context, *None) (*Queue, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method RetrieveQueue not implemented")
-}
-func (UnimplementedJobsServer) RetrieveQueueStatus(context.Context, *None) (*QueueStatus, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method RetrieveQueueStatus not implemented")
-}
 func (UnimplementedJobsServer) mustEmbedUnimplementedJobsServer() {}
 
-// UnsafeJobsServer may be embedded to opt out of forward compatibility for this Service.
+// UnsafeJobsServer may be embedded to opt out of forward compatibility for this service.
 // Use of this interface is not recommended, as added methods to JobsServer will
 // result in compilation errors.
 type UnsafeJobsServer interface {
@@ -244,80 +202,13 @@ func (x *jobsStartJobServer) Send(m *HostAuditReport) error {
 	return x.ServerStream.SendMsg(m)
 }
 
-func _Jobs_TerminateJob_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(JobTermination)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(JobsServer).TerminateJob(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: "/contracts.Jobs/TerminateJob",
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(JobsServer).TerminateJob(ctx, req.(*JobTermination))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _Jobs_RetrieveQueue_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(None)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(JobsServer).RetrieveQueue(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: "/contracts.Jobs/RetrieveQueue",
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(JobsServer).RetrieveQueue(ctx, req.(*None))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _Jobs_RetrieveQueueStatus_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(None)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(JobsServer).RetrieveQueueStatus(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: "/contracts.Jobs/RetrieveQueueStatus",
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(JobsServer).RetrieveQueueStatus(ctx, req.(*None))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-// Jobs_ServiceDesc is the grpc.ServiceDesc for Jobs Service.
+// Jobs_ServiceDesc is the grpc.ServiceDesc for Jobs service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var Jobs_ServiceDesc = grpc.ServiceDesc{
 	ServiceName: "contracts.Jobs",
 	HandlerType: (*JobsServer)(nil),
-	Methods: []grpc.MethodDesc{
-		{
-			MethodName: "TerminateJob",
-			Handler:    _Jobs_TerminateJob_Handler,
-		},
-		{
-			MethodName: "RetrieveQueue",
-			Handler:    _Jobs_RetrieveQueue_Handler,
-		},
-		{
-			MethodName: "RetrieveQueueStatus",
-			Handler:    _Jobs_RetrieveQueueStatus_Handler,
-		},
-	},
+	Methods:     []grpc.MethodDesc{},
 	Streams: []grpc.StreamDesc{
 		{
 			StreamName:    "StartJob",
@@ -328,7 +219,7 @@ var Jobs_ServiceDesc = grpc.ServiceDesc{
 	Metadata: "agent.proto",
 }
 
-// ConfigurationClient is the client API for Configuration Service.
+// ConfigurationClient is the client API for Configuration service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type ConfigurationClient interface {
@@ -363,7 +254,7 @@ func (c *configurationClient) RetrieveConfig(ctx context.Context, in *None, opts
 	return out, nil
 }
 
-// ConfigurationServer is the server API for Configuration Service.
+// ConfigurationServer is the server API for Configuration service.
 // All implementations must embed UnimplementedConfigurationServer
 // for forward compatibility
 type ConfigurationServer interface {
@@ -385,7 +276,7 @@ func (UnimplementedConfigurationServer) RetrieveConfig(context.Context, *None) (
 }
 func (UnimplementedConfigurationServer) mustEmbedUnimplementedConfigurationServer() {}
 
-// UnsafeConfigurationServer may be embedded to opt out of forward compatibility for this Service.
+// UnsafeConfigurationServer may be embedded to opt out of forward compatibility for this service.
 // Use of this interface is not recommended, as added methods to ConfigurationServer will
 // result in compilation errors.
 type UnsafeConfigurationServer interface {
@@ -432,7 +323,7 @@ func _Configuration_RetrieveConfig_Handler(srv interface{}, ctx context.Context,
 	return interceptor(ctx, in, info, handler)
 }
 
-// Configuration_ServiceDesc is the grpc.ServiceDesc for Configuration Service.
+// Configuration_ServiceDesc is the grpc.ServiceDesc for Configuration service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var Configuration_ServiceDesc = grpc.ServiceDesc{

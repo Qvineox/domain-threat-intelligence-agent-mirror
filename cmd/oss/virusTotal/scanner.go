@@ -11,9 +11,9 @@ import (
 )
 
 const baseURL = "https://www.virustotal.com/api/v3/"
-const minuteLimit = 3
-const dailyLimit = 50
-const monthlyLimit = 500
+const minuteLimit = 4
+const dailyLimit = 500
+const monthlyLimit = 15500
 
 type ScannerImpl struct {
 	oss.OpenSourceScanner
@@ -57,8 +57,8 @@ func (s *ScannerImpl) ScanTarget(target jobEntities.Target, timeout, retries uin
 		content, err = s.scanIP(target.Host)
 	case jobEntities.HOST_TYPE_DOMAIN:
 		content, err = s.scanDomain(target.Host)
-	case jobEntities.HOST_TYPE_URL:
-		content, err = s.scanURL(target.Host)
+	//case jobEntities.HOST_TYPE_URL:
+	//	content, err = s.scanURL(target.Host)
 	default:
 		return nil, errors.New("unsupported host type by VirusTotal")
 	}

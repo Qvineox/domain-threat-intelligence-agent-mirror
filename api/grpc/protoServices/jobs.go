@@ -109,21 +109,6 @@ listenJobs:
 	return nil
 }
 
-func (s *JobsServerImpl) TerminateJob(ctx context.Context, termination *JobTermination) (*None, error) {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (s *JobsServerImpl) RetrieveQueue(ctx context.Context, none *None) (*Queue, error) {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (s *JobsServerImpl) RetrieveQueueStatus(ctx context.Context, none *None) (*QueueStatus, error) {
-	//TODO implement me
-	panic("implement me")
-}
-
 func (s *JobsServerImpl) mustEmbedUnimplementedJobsServer() {
 	//TODO implement me
 	panic("implement me")

@@ -4,13 +4,13 @@ import (
 	"domain-threat-intelligence-agent/cmd/core/entities"
 	"domain-threat-intelligence-agent/cmd/core/entities/jobEntities"
 	"domain-threat-intelligence-agent/cmd/oss"
-	"fmt"
+	"errors"
 	"log/slog"
 	"net/http"
 	"net/url"
 )
 
-const baseURL = "https://api.shodan.io"
+const baseURL = "https://api.shodan.io/shodan"
 const minuteLimit = 5
 const dailyLimit = 5000
 const monthlyLimit = 5000
@@ -19,7 +19,7 @@ type ScannerImpl struct {
 	oss.OpenSourceScanner
 }
 
-func NewScannerImpl(apiKey, proxy string) (*ScannerImpl, error) {
+func NewScannerImpl(apiKey, proxy string) *ScannerImpl {
 	client := &http.Client{}
 
 	if len(apiKey) == 0 {
@@ -28,11 +28,9 @@ func NewScannerImpl(apiKey, proxy string) (*ScannerImpl, error) {
 
 	if len(proxy) > 0 {
 		proxyUrl, err := url.Parse(proxy)
-		if err != nil {
-			return nil, err
+		if err == nil {
+			client.Transport = &http.Transport{Proxy: http.ProxyURL(proxyUrl)}
 		}
-
-		client.Transport = &http.Transport{Proxy: http.ProxyURL(proxyUrl)}
 	}
 
 	return &ScannerImpl{
@@ -46,11 +44,19 @@ func NewScannerImpl(apiKey, proxy string) (*ScannerImpl, error) {
 			},
 			Client: client,
 		},
-	}, nil
+	}
 }
 
 func (s *ScannerImpl) ScanTarget(target jobEntities.Target, timeout, retries uint64) ([]byte, error) {
-	var virusTotalScanMockup = fmt.Sprintf("this is Shodan scan report mockup string for target: %s with type %d", target.Host, target.Type)
+	var content []byte
+	var err error
 
-	return []byte(virusTotalScanMockup), nil
+	switch target.Type {
+	case jobEntities.HOST_TYPE_CIDR:
+		content, err = s.scanIP(target.Host)
+	default:
+		return nil, errors.New("unsupported host type by Shodan")
+	}
+
+	return content, err
 }

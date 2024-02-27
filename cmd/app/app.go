@@ -4,6 +4,7 @@ import (
 	"domain-threat-intelligence-agent/api/grpc/servers"
 	"domain-threat-intelligence-agent/cmd/core/services"
 	"domain-threat-intelligence-agent/cmd/oss/ipQualityScore"
+	"domain-threat-intelligence-agent/cmd/oss/shodan"
 	"domain-threat-intelligence-agent/cmd/oss/virusTotal"
 	"domain-threat-intelligence-agent/configs"
 	"fmt"
@@ -27,9 +28,9 @@ func StartApp(config configs.StaticConfig) error {
 	gRPCServer := grpc.NewServer()
 
 	jobService := services.NewOpenSourceScannerImpl(
-		virusTotal.NewScannerImpl("test_key", ""),
-		ipQualityScore.NewScannerImpl("test_key", ""),
-		nil,
+		virusTotal.NewScannerImpl(config.OSSProviders.VirusTotalAPIKey, config.HTTPClients.Proxy),
+		ipQualityScore.NewScannerImpl(config.OSSProviders.IPQualityScoreAPIKey, config.HTTPClients.Proxy),
+		shodan.NewScannerImpl(config.OSSProviders.IPQualityScoreAPIKey, config.HTTPClients.Proxy),
 		nil,
 		nil,
 	)

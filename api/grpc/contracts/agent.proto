@@ -19,11 +19,6 @@ message SecurityToken {
 service Jobs {
   // StartJob accepts Job with all required params, streams back all queried and found results
   rpc StartJob (Job) returns (stream HostAuditReport);
-
-  rpc TerminateJob(JobTermination) returns (None);
-
-  rpc RetrieveQueue(None) returns (Queue);
-  rpc RetrieveQueueStatus(None) returns (QueueStatus);
 }
 
 service Configuration {
