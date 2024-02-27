@@ -1,6 +1,7 @@
 package core
 
 import (
+	"context"
 	"domain-threat-intelligence-agent/cmd/core/entities"
 	"domain-threat-intelligence-agent/cmd/core/entities/jobEntities"
 )
@@ -9,7 +10,7 @@ import (
 type IOpenSourceScanner interface {
 	// StartTasksExecution ReceiveTasks accepts tasks list and a channel to return JSON binary stream.
 	// This stream of audit reports that are sent back to main API via gRPC.
-	StartTasksExecution([]jobEntities.OSSTarget, jobEntities.Timings, chan []byte, chan error)
+	StartTasksExecution(context.Context, []jobEntities.OSSTarget, jobEntities.Timings, chan []byte, chan error)
 }
 
 // IProviderScanner describes interface for single API provider scanner

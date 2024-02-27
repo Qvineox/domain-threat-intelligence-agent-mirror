@@ -10,6 +10,7 @@ import (
 	"google.golang.org/grpc/status"
 	"log/slog"
 	"net"
+	"sync"
 )
 
 type JobsServerImpl struct {
@@ -20,6 +21,9 @@ func (s *JobsServerImpl) StartJob(protoJob *Job, stream Jobs_StartJobServer) err
 	slog.Info(fmt.Sprintf("starting job '%x'", protoJob.Meta.Uuid))
 	var totalTasks, elapsedTasks uint64 = 0, 0
 
+	// ctx should be used to stop scanning if stream interrupted by user client
+	ctx, cancel := context.WithCancel(context.Background())
+
 	returnChannel := make(chan []byte, 1000) // hardcoded restriction!
 	errorChannel := make(chan error, 1000)   // hardcoded restriction!
 
@@ -27,58 +31,81 @@ func (s *JobsServerImpl) StartJob(protoJob *Job, stream Jobs_StartJobServer) err
 	case JobType_JOB_TYPE_OSS:
 		job, err := NewOpenSourceScanJobFromProto(protoJob)
 		if err != nil {
+			cancel()
+
 			return status.Error(codes.InvalidArgument, "could not create scanning job: "+err.Error())
 		}
 
-		tasks := job.CalculateTasks()
+		tasks := job.CalculateTargets()
 		totalTasks = uint64(len(tasks))
 
-		go s.Service.StartTasksExecution(tasks, job.Timings, returnChannel, errorChannel)
+		go s.Service.StartTasksExecution(ctx, tasks, job.Timings, returnChannel, errorChannel)
 	default:
+		cancel()
+
 		return status.Error(codes.InvalidArgument, "selected scanning job type not supported")
 	}
 
+	wg := &sync.WaitGroup{}
+
+listenJobs:
 	for {
 		select {
+		case <-stream.Context().Done():
+			slog.Warn(fmt.Sprintf("job %s cancelled from context", protoJob.Meta.Uuid))
+
+			cancel()
+
+			break listenJobs
 		case msg, ok := <-returnChannel:
 			if !ok {
 				returnChannel = nil
 				break
 			}
 
-			elapsedTasks++
+			wg.Add(1)
+
 			err := stream.Send(&HostAuditReport{
-				TasksLeft:    totalTasks - elapsedTasks,
+				TasksLeft:    totalTasks - elapsedTasks - 1,
 				Content:      msg,
 				IsSuccessful: true,
 			})
+			elapsedTasks++
 
 			if err != nil {
 				slog.Error("failed to return message via stream: " + err.Error())
 			}
+
+			wg.Done()
 		case msg, ok := <-errorChannel:
 			if !ok {
 				errorChannel = nil
 				break
 			}
 
-			elapsedTasks++
+			wg.Add(1)
+
 			err := stream.Send(&HostAuditReport{
-				TasksLeft:    totalTasks - elapsedTasks,
+				TasksLeft:    totalTasks - elapsedTasks - 1,
 				Content:      []byte(msg.Error()),
 				IsSuccessful: false,
 			})
+			elapsedTasks++
 
 			if err != nil {
 				slog.Error("failed to return message via stream: " + err.Error())
 			}
+
+			wg.Done()
 		}
 
-		if elapsedTasks == totalTasks {
+		if elapsedTasks == totalTasks || returnChannel == nil {
+			cancel()
 			break
 		}
 	}
 
+	wg.Wait()
 	return nil
 }
 

@@ -47,7 +47,7 @@ func TestJob(t *testing.T) {
 			},
 		}
 
-		tasks := job.CalculateTasks()
+		tasks := job.CalculateTargets()
 
 		require.Len(t, tasks, 7)
 

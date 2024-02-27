@@ -1,6 +1,7 @@
 package services
 
 import (
+	"context"
 	"domain-threat-intelligence-agent/cmd/core"
 	"domain-threat-intelligence-agent/cmd/core/entities/jobEntities"
 	"errors"
@@ -18,7 +19,11 @@ type OpenSourceScannerImpl struct {
 	ipwh core.IProviderScanner // ipWhoIs
 }
 
-func (s *OpenSourceScannerImpl) StartTasksExecution(tasks []jobEntities.OSSTarget, timings jobEntities.Timings, c chan []byte, e chan error) {
+func NewOpenSourceScannerImpl(vt, ipqs, shd, cs, ipwh core.IProviderScanner) *OpenSourceScannerImpl {
+	return &OpenSourceScannerImpl{vt: vt, ipqs: ipqs, shd: shd, cs: cs, ipwh: ipwh}
+}
+
+func (s *OpenSourceScannerImpl) StartTasksExecution(ctx context.Context, tasks []jobEntities.OSSTarget, timings jobEntities.Timings, c chan []byte, e chan error) {
 	// default values for timing (abuse restrains)
 	{
 		if timings.Delay < 100 {
@@ -37,26 +42,27 @@ func (s *OpenSourceScannerImpl) StartTasksExecution(tasks []jobEntities.OSSTarge
 	wg := &sync.WaitGroup{}
 	wg.Add(5)
 
-	go startScans(s.vt, vtTasks, timings, c, e, wg)
-	go startScans(s.ipqs, ipqsTasks, timings, c, e, wg)
-	go startScans(s.shd, shdTasks, timings, c, e, wg)
-	go startScans(s.cs, csTasks, timings, c, e, wg)
-	go startScans(s.ipwh, ipwhTasks, timings, c, e, wg)
+	go startScans(ctx, s.vt, vtTasks, timings, c, e, wg)
+	go startScans(ctx, s.ipqs, ipqsTasks, timings, c, e, wg)
+	go startScans(ctx, s.shd, shdTasks, timings, c, e, wg)
+	go startScans(ctx, s.cs, csTasks, timings, c, e, wg)
+	go startScans(ctx, s.ipwh, ipwhTasks, timings, c, e, wg)
 
 	wg.Wait()
 
 	close(c)
 }
 
-func startScans(scanner core.IProviderScanner, tasks []jobEntities.Target, timings jobEntities.Timings, c chan []byte, e chan error, wg *sync.WaitGroup) {
+func startScans(ctx context.Context, scanner core.IProviderScanner, tasks []jobEntities.Target, timings jobEntities.Timings, c chan []byte, e chan error, wg *sync.WaitGroup) {
 	if tasks == nil || len(tasks) == 0 {
 		wg.Done()
 		return
 	}
 
-	if scanner == nil || !scanner.IsActive() {
+	//if scanner == nil || !scanner.IsActive() {
+	if scanner == nil {
 		for range tasks {
-			e <- errors.New("selected scanner not found")
+			e <- errors.New("selected scanner not found or not active")
 		}
 
 		wg.Done()
@@ -72,18 +78,23 @@ func startScans(scanner core.IProviderScanner, tasks []jobEntities.Target, timin
 		return
 	}
 
+taskProcessing:
 	for _, t := range tasks {
-		bytes, err := scanner.ScanTarget(t, timings.Timeout, timings.Retries)
-		if err != nil {
-			slog.Error(fmt.Sprintf("failed to scan target '%s' via '%s'", t.Host, scanner.GetConfig().Host))
-			e <- err
+		select {
+		case <-ctx.Done():
+			slog.Warn("scanning cancelled from job context")
+			break taskProcessing
+		default:
+			bytes, err := scanner.ScanTarget(t, timings.Timeout, timings.Retries)
+			if err != nil {
+				slog.Error(fmt.Sprintf("failed to scan target '%s' via '%s'", t.Host, scanner.GetConfig().BaseURL))
+				e <- err
+			} else {
+				c <- bytes
+			}
 
-			continue
+			time.Sleep(time.Duration(timings.Delay) * time.Millisecond) // delay
 		}
-
-		c <- bytes
-
-		time.Sleep(time.Duration(timings.Delay) * time.Millisecond) // delay
 	}
 
 	wg.Done()

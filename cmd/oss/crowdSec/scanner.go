@@ -1,36 +1,38 @@
-package virusTotal
+package shodan
 
 import (
 	"domain-threat-intelligence-agent/cmd/core/entities"
 	"domain-threat-intelligence-agent/cmd/core/entities/jobEntities"
 	"domain-threat-intelligence-agent/cmd/oss"
-	"errors"
+	"fmt"
 	"log/slog"
 	"net/http"
 	"net/url"
 )
 
-const baseURL = "https://www.virustotal.com/api/v3/"
-const minuteLimit = 3
+const baseURL = "https://cti.api.crowdsec.net/v2"
+const minuteLimit = 5
 const dailyLimit = 50
-const monthlyLimit = 500
+const monthlyLimit = 50
 
 type ScannerImpl struct {
 	oss.OpenSourceScanner
 }
 
-func NewScannerImpl(apiKey, proxy string) *ScannerImpl {
+func NewScannerImpl(apiKey, proxy string) (*ScannerImpl, error) {
 	client := &http.Client{}
 
 	if len(apiKey) == 0 {
-		slog.Warn("api key missing for virus total scanner.")
+		slog.Warn("api key missing for shodan scanner.")
 	}
 
 	if len(proxy) > 0 {
 		proxyUrl, err := url.Parse(proxy)
-		if err == nil {
-			client.Transport = &http.Transport{Proxy: http.ProxyURL(proxyUrl)}
+		if err != nil {
+			return nil, err
 		}
+
+		client.Transport = &http.Transport{Proxy: http.ProxyURL(proxyUrl)}
 	}
 
 	return &ScannerImpl{
@@ -41,27 +43,14 @@ func NewScannerImpl(apiKey, proxy string) *ScannerImpl {
 				MonthlyQueryLimit: monthlyLimit,
 				DailyQueryLimit:   dailyLimit,
 				MinuteQueryLimit:  minuteLimit,
-				ProxyURL:          proxy,
 			},
 			Client: client,
 		},
-	}
+	}, nil
 }
 
 func (s *ScannerImpl) ScanTarget(target jobEntities.Target, timeout, retries uint64) ([]byte, error) {
-	var content []byte
-	var err error
+	var virusTotalScanMockup = fmt.Sprintf("this is CrowdSec scan report mockup string for target: %s with type %d", target.Host, target.Type)
 
-	switch target.Type {
-	case jobEntities.HOST_TYPE_CIDR:
-		content, err = s.scanIP(target.Host)
-	case jobEntities.HOST_TYPE_DOMAIN:
-		content, err = s.scanDomain(target.Host)
-	case jobEntities.HOST_TYPE_URL:
-		content, err = s.scanURL(target.Host)
-	default:
-		return nil, errors.New("unsupported host type by VirusTotal")
-	}
-
-	return content, err
+	return []byte(virusTotalScanMockup), nil
 }

@@ -20,11 +20,11 @@ const (
 	OSS_PROVIDER_IP_WHO_IS
 )
 
-var supportedByVirusTotal = []TargetType{HOST_TYPE_CIDR, HOST_TYPE_URL, HOST_TYPE_DOMAIN}
-var supportedByIPQualityScore = []TargetType{HOST_TYPE_CIDR, HOST_TYPE_URL, HOST_TYPE_DOMAIN, HOST_TYPE_EMAIL}
-var supportedByShodan = []TargetType{HOST_TYPE_CIDR}
-var supportedByIPWhoIS = []TargetType{HOST_TYPE_CIDR}
-var supportedByCrowdSec = []TargetType{HOST_TYPE_CIDR, HOST_TYPE_URL, HOST_TYPE_DOMAIN}
+var SupportedByVirusTotal = []TargetType{HOST_TYPE_CIDR, HOST_TYPE_URL, HOST_TYPE_DOMAIN}
+var SupportedByIPQualityScore = []TargetType{HOST_TYPE_CIDR, HOST_TYPE_URL, HOST_TYPE_DOMAIN, HOST_TYPE_EMAIL}
+var SupportedByShodan = []TargetType{HOST_TYPE_CIDR}
+var SupportedByIPWhoIS = []TargetType{HOST_TYPE_CIDR}
+var SupportedByCrowdSec = []TargetType{HOST_TYPE_CIDR, HOST_TYPE_URL, HOST_TYPE_DOMAIN}
 
 func NewOSSTasksFromTarget(target Target, providers []SupportedOSSProvider) []OSSTarget {
 	tasks := make([]OSSTarget, 0)
@@ -32,23 +32,23 @@ func NewOSSTasksFromTarget(target Target, providers []SupportedOSSProvider) []OS
 	for _, p := range providers {
 		switch p {
 		case OSS_PROVIDER_VIRUS_TOTAL:
-			if !slices.Contains(supportedByVirusTotal, target.Type) {
+			if !slices.Contains(SupportedByVirusTotal, target.Type) {
 				continue
 			}
 		case OSS_PROVIDER_IP_QUALITY_SCORE:
-			if !slices.Contains(supportedByIPQualityScore, target.Type) {
+			if !slices.Contains(SupportedByIPQualityScore, target.Type) {
 				continue
 			}
 		case OSS_PROVIDER_SHODAN:
-			if !slices.Contains(supportedByShodan, target.Type) {
+			if !slices.Contains(SupportedByShodan, target.Type) {
 				continue
 			}
 		case OSS_PROVIDER_IP_WHO_IS:
-			if !slices.Contains(supportedByIPWhoIS, target.Type) {
+			if !slices.Contains(SupportedByIPWhoIS, target.Type) {
 				continue
 			}
 		case OSS_PROVIDER_CROWD_SEC:
-			if !slices.Contains(supportedByCrowdSec, target.Type) {
+			if !slices.Contains(SupportedByCrowdSec, target.Type) {
 				continue
 			}
 		default:

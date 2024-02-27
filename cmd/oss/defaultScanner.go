@@ -5,6 +5,7 @@ import (
 	"domain-threat-intelligence-agent/cmd/core/entities/jobEntities"
 	"errors"
 	"net/http"
+	"net/url"
 )
 
 type OpenSourceScanner struct {
@@ -17,7 +18,7 @@ func (s *OpenSourceScanner) GetConfig() entities.ScannerConfig {
 }
 
 func (s *OpenSourceScanner) SetConfig(config entities.ScannerConfig) error {
-	if len(config.Host) == 0 {
+	if len(config.BaseURL) == 0 {
 		return errors.New("host not defined")
 	}
 
@@ -25,8 +26,21 @@ func (s *OpenSourceScanner) SetConfig(config entities.ScannerConfig) error {
 		return errors.New("API key not defined")
 	}
 
-	if config.DayQueryLimit == 0 || config.HourQueryLimit == 0 {
+	if config.MonthlyQueryLimit == 0 || config.DailyQueryLimit == 0 || config.MinuteQueryLimit == 0 {
 		return errors.New("limits must be defined")
+	}
+
+	if len(config.ProxyURL) > 0 {
+		proxyUrl, err := url.Parse(config.ProxyURL)
+		if err != nil {
+			return err
+		}
+
+		if s.Client == nil {
+			return errors.New("http client not found")
+		}
+
+		s.Client.Transport = &http.Transport{Proxy: http.ProxyURL(proxyUrl)}
 	}
 
 	s.Config = config
@@ -39,5 +53,5 @@ func (s *OpenSourceScanner) ScanTarget(target jobEntities.Target, timeout uint64
 }
 
 func (s *OpenSourceScanner) IsActive() bool {
-	return s.Client != nil && s.Config.Host != "" && s.Config.APIKey != ""
+	return s.Client != nil && s.Config.BaseURL != "" && s.Config.APIKey != ""
 }

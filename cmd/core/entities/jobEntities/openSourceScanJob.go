@@ -11,7 +11,7 @@ type OpenSourceScanJob struct {
 	Providers []SupportedOSSProvider
 }
 
-func (j *OpenSourceScanJob) CalculateTasks() []OSSTarget {
+func (j *OpenSourceScanJob) CalculateTargets() []OSSTarget {
 	var exceptedHosts = make([]string, 0, len(j.Exceptions))
 	for _, v := range j.Exceptions {
 		switch v.Type {

@@ -1,0 +1,16 @@
+{
+  "grpc_server": {
+    "host": "0.0.0.0",
+    "port": 0
+  },
+  "http_clients": {
+    "proxy": ""
+  },
+  "oss_providers": {
+    "vt_apikey": "",
+    "ipqs_apikey": "",
+    "shodan_apikey": "",
+    "crowdsec_apikey": "",
+    "ipwhois_apikey": ""
+  }
+}

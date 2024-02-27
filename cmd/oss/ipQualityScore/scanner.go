@@ -1,19 +1,19 @@
-package virusTotal
+package ipQualityScore
 
 import (
 	"domain-threat-intelligence-agent/cmd/core/entities"
 	"domain-threat-intelligence-agent/cmd/core/entities/jobEntities"
 	"domain-threat-intelligence-agent/cmd/oss"
-	"errors"
+	"fmt"
 	"log/slog"
 	"net/http"
 	"net/url"
 )
 
-const baseURL = "https://www.virustotal.com/api/v3/"
-const minuteLimit = 3
-const dailyLimit = 50
-const monthlyLimit = 500
+const baseURL = "https://www.ipqualityscore.com/api/json"
+const minuteLimit = 10
+const dailyLimit = 5000
+const monthlyLimit = 5000
 
 type ScannerImpl struct {
 	oss.OpenSourceScanner
@@ -23,7 +23,7 @@ func NewScannerImpl(apiKey, proxy string) *ScannerImpl {
 	client := &http.Client{}
 
 	if len(apiKey) == 0 {
-		slog.Warn("api key missing for virus total scanner.")
+		slog.Warn("api key missing for shodan scanner.")
 	}
 
 	if len(proxy) > 0 {
@@ -41,7 +41,6 @@ func NewScannerImpl(apiKey, proxy string) *ScannerImpl {
 				MonthlyQueryLimit: monthlyLimit,
 				DailyQueryLimit:   dailyLimit,
 				MinuteQueryLimit:  minuteLimit,
-				ProxyURL:          proxy,
 			},
 			Client: client,
 		},
@@ -49,19 +48,7 @@ func NewScannerImpl(apiKey, proxy string) *ScannerImpl {
 }
 
 func (s *ScannerImpl) ScanTarget(target jobEntities.Target, timeout, retries uint64) ([]byte, error) {
-	var content []byte
-	var err error
+	var virusTotalScanMockup = fmt.Sprintf("this is IPQualityScore scan report mockup string for target: %s with type %d", target.Host, target.Type)
 
-	switch target.Type {
-	case jobEntities.HOST_TYPE_CIDR:
-		content, err = s.scanIP(target.Host)
-	case jobEntities.HOST_TYPE_DOMAIN:
-		content, err = s.scanDomain(target.Host)
-	case jobEntities.HOST_TYPE_URL:
-		content, err = s.scanURL(target.Host)
-	default:
-		return nil, errors.New("unsupported host type by VirusTotal")
-	}
-
-	return content, err
+	return []byte(virusTotalScanMockup), nil
 }

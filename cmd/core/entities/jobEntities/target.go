@@ -1,7 +1,7 @@
 package jobEntities
 
 type Target struct {
-	Host string     `json:"Host"`
+	Host string     `json:"BaseURL"`
 	Type TargetType `json:"Type"`
 }
 
