@@ -3,7 +3,9 @@ package test
 import (
 	"domain-threat-intelligence-agent/cmd/core"
 	"domain-threat-intelligence-agent/cmd/core/entities"
+	"domain-threat-intelligence-agent/cmd/core/entities/jobEntities"
 	"domain-threat-intelligence-agent/cmd/core/services"
+	"domain-threat-intelligence-agent/cmd/oss/crowdSec"
 	"domain-threat-intelligence-agent/cmd/oss/ipQualityScore"
 	"domain-threat-intelligence-agent/cmd/oss/shodan"
 	"domain-threat-intelligence-agent/cmd/oss/virusTotal"
@@ -278,5 +280,13 @@ func TestScanners(t *testing.T) {
 		//report, err := scanner.ScanTarget(jobEntities.Target{Host: "lysak.yaroslav00@yandex.ru", Type: jobEntities.HOST_TYPE_EMAIL}, 1000, 3)
 		//require.NoError(t, err)
 		//require.NotNil(t, report)
+	})
+
+	t.Run("crowdSec scanner tests", func(t *testing.T) {
+		scanner = crowdSec.NewScannerImpl("rWL9pmVnbe8Ytm7TiWUXb6cSJAGRtqcm2Ribr9J4", "")
+
+		report, err := scanner.ScanTarget(jobEntities.Target{Host: "8.8.8.8", Type: jobEntities.HOST_TYPE_CIDR}, 1000, 3)
+		require.NoError(t, err)
+		require.NotNil(t, report)
 	})
 }
