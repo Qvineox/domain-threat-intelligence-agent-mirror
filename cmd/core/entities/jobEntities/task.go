@@ -21,7 +21,7 @@ const (
 )
 
 var SupportedByVirusTotal = []TargetType{HOST_TYPE_CIDR, HOST_TYPE_URL, HOST_TYPE_DOMAIN}
-var SupportedByIPQualityScore = []TargetType{HOST_TYPE_CIDR, HOST_TYPE_URL, HOST_TYPE_DOMAIN, HOST_TYPE_EMAIL}
+var SupportedByIPQualityScore = []TargetType{HOST_TYPE_CIDR, HOST_TYPE_URL, HOST_TYPE_EMAIL}
 var SupportedByShodan = []TargetType{HOST_TYPE_CIDR}
 var SupportedByIPWhoIS = []TargetType{HOST_TYPE_CIDR}
 var SupportedByCrowdSec = []TargetType{HOST_TYPE_CIDR, HOST_TYPE_URL, HOST_TYPE_DOMAIN}

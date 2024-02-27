@@ -23,7 +23,7 @@ func NewScannerImpl(apiKey, proxy string) *ScannerImpl {
 	client := &http.Client{}
 
 	if len(apiKey) == 0 {
-		slog.Warn("api key missing for virus total scanner.")
+		slog.Warn("api key missing for VirusTotal scanner.")
 	}
 
 	if len(proxy) > 0 {

@@ -4,7 +4,7 @@ import (
 	"domain-threat-intelligence-agent/cmd/core/entities"
 	"domain-threat-intelligence-agent/cmd/core/entities/jobEntities"
 	"domain-threat-intelligence-agent/cmd/oss"
-	"fmt"
+	"errors"
 	"log/slog"
 	"net/http"
 	"net/url"
@@ -23,7 +23,7 @@ func NewScannerImpl(apiKey, proxy string) *ScannerImpl {
 	client := &http.Client{}
 
 	if len(apiKey) == 0 {
-		slog.Warn("api key missing for shodan scanner.")
+		slog.Warn("api key missing for IPQualityScore scanner.")
 	}
 
 	if len(proxy) > 0 {
@@ -48,7 +48,19 @@ func NewScannerImpl(apiKey, proxy string) *ScannerImpl {
 }
 
 func (s *ScannerImpl) ScanTarget(target jobEntities.Target, timeout, retries uint64) ([]byte, error) {
-	var virusTotalScanMockup = fmt.Sprintf("this is IPQualityScore scan report mockup string for target: %s with type %d", target.Host, target.Type)
+	var content []byte
+	var err error
 
-	return []byte(virusTotalScanMockup), nil
+	switch target.Type {
+	case jobEntities.HOST_TYPE_CIDR:
+		content, err = s.scanIP(target.Host)
+	case jobEntities.HOST_TYPE_URL:
+		content, err = s.scanURL(target.Host)
+	case jobEntities.HOST_TYPE_EMAIL:
+		content, err = s.scanEmail(target.Host)
+	default:
+		return nil, errors.New("unsupported host type by VirusTotal")
+	}
+
+	return content, err
 }

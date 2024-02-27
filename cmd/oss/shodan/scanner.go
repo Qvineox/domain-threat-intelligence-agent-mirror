@@ -23,7 +23,7 @@ func NewScannerImpl(apiKey, proxy string) (*ScannerImpl, error) {
 	client := &http.Client{}
 
 	if len(apiKey) == 0 {
-		slog.Warn("api key missing for shodan scanner.")
+		slog.Warn("api key missing for Shodan scanner.")
 	}
 
 	if len(proxy) > 0 {
