@@ -14,7 +14,7 @@ type StaticConfig struct {
 	} `json:"grpc_server"`
 
 	HTTPClients struct {
-		Proxy string `env:"http_proxy" json:"proxy"`
+		Proxy string `env:"http_clients_proxy" json:"proxy"`
 	} `json:"http_clients"`
 
 	OSSProviders struct {

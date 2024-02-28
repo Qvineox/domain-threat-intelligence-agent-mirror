@@ -23,7 +23,7 @@ func NewOpenSourceScannerImpl(vt, ipqs, shd, cs, ipwh core.IProviderScanner) *Op
 	return &OpenSourceScannerImpl{vt: vt, ipqs: ipqs, shd: shd, cs: cs, ipwh: ipwh}
 }
 
-func (s *OpenSourceScannerImpl) StartTasksExecution(ctx context.Context, tasks []jobEntities.OSSTarget, timings jobEntities.Timings, c chan []byte, e chan error) {
+func (s *OpenSourceScannerImpl) StartTasksExecution(ctx context.Context, tasks []jobEntities.OSSTarget, timings jobEntities.Timings, c chan jobEntities.TargetAuditMessage, e chan jobEntities.TargetAuditError) {
 	// default values for timing (abuse restrains)
 	{
 		if timings.Delay < 100 {
@@ -53,20 +53,20 @@ func (s *OpenSourceScannerImpl) StartTasksExecution(ctx context.Context, tasks [
 	close(c)
 }
 
-func startScans(ctx context.Context, scanner core.IProviderScanner, tasks []jobEntities.Target, timings jobEntities.Timings, c chan []byte, e chan error, wg *sync.WaitGroup) {
-	//if scanner == nil || !scanner.IsActive() {
-	if scanner == nil {
-		for range tasks {
-			e <- errors.New("selected scanner not found or not active")
-		}
-
+func startScans(ctx context.Context, scanner core.IProviderScanner, tasks []jobEntities.Target, timings jobEntities.Timings, c chan jobEntities.TargetAuditMessage, e chan jobEntities.TargetAuditError, wg *sync.WaitGroup) {
+	if tasks == nil || len(tasks) == 0 {
 		wg.Done()
 		return
 	}
 
-	if tasks == nil || len(tasks) == 0 {
-		for range tasks {
-			e <- errors.New("no tasks provided")
+	if scanner == nil || !scanner.IsActive() {
+		slog.Warn(fmt.Sprintf("scan tasks (%d) cancelled: scanner not found or not active", len(tasks)))
+
+		for _, t := range tasks {
+			e <- jobEntities.TargetAuditError{
+				Target: t,
+				Error:  errors.New("selected scanner not found or not active"),
+			}
 		}
 
 		wg.Done()
@@ -83,9 +83,15 @@ taskProcessing:
 			bytes, err := scanner.ScanTarget(t, timings.Timeout, timings.Retries)
 			if err != nil {
 				slog.Error(fmt.Sprintf("failed to scan target '%s' via '%s': %s", t.Host, scanner.GetConfig().BaseURL, err.Error()))
-				e <- err
+				e <- jobEntities.TargetAuditError{
+					Target: t,
+					Error:  err,
+				}
 			} else {
-				c <- bytes
+				c <- jobEntities.TargetAuditMessage{
+					Target:  t,
+					Content: bytes,
+				}
 			}
 
 			time.Sleep(time.Duration(timings.Delay) * time.Millisecond) // delay

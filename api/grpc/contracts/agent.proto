@@ -7,6 +7,8 @@ option go_package = "domain_threat_intelligence_agent/api/proto/protoServices";
 
 // ref: https://habr.com/ru/articles/774796/
 // ref: https://www.geeksforgeeks.org/how-to-install-protocol-buffers-on-windows/
+// ref: https://github.com/grpc/grpc-go/blob/master/examples/features/metadata/server/main.go
+// ref: https://grpc.io/docs/guides/metadata/
 
 service Connection {
   rpc Hello(SecurityToken) returns (SecurityToken); // describes initial connection sequence, key validation and exchange
@@ -18,7 +20,13 @@ message SecurityToken {
 
 service Jobs {
   // StartJob accepts Job with all required params, streams back all queried and found results
-  rpc StartJob (Job) returns (stream HostAuditReport);
+  rpc StartOSS (Job) returns (stream TargetAuditReport);
+
+  // rpc StartNMAP (Job) returns (stream TargetAuditReport);
+  // rpc StartWhoIs (Job) returns (stream TargetAuditReport);
+  // rpc StartDNS (Job) returns (stream TargetAuditReport);
+  // rpc StartDiscovery (Job) returns (stream TargetAuditReport);
+  // rpc StartSpider (Job) returns (stream TargetAuditReport);
 }
 
 service Configuration {
@@ -173,19 +181,18 @@ message Target {
 }
 
 enum HostType {
-  HOST_TYPE_CIDR = 0; // or IP address
+  HOST_TYPE_CIDR = 0; // or IP address with /32
   HOST_TYPE_DOMAIN = 1;
   HOST_TYPE_URL = 2;
   HOST_TYPE_EMAIL = 3;
 }
 
-message HostAuditReport {
-  uint64 tasksLeft = 1;
-  bytes content = 2;
-
-  // TODO: maybe do second bytes field to contain task data
-
-  bool isSuccessful = 3;
+// TargetAuditReport is used to represent Task return values. Task type and other data should be added to header.
+message TargetAuditReport {
+  Target target = 1;
+  uint64 tasksLeft = 2;
+  bytes content = 3;
+  bool isSuccessful = 4;
 }
 
 message AgentConfig {

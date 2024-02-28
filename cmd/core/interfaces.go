@@ -10,7 +10,7 @@ import (
 type IOpenSourceScanner interface {
 	// StartTasksExecution ReceiveTasks accepts tasks list and a channel to return JSON binary stream.
 	// This stream of audit reports that are sent back to main API via gRPC.
-	StartTasksExecution(context.Context, []jobEntities.OSSTarget, jobEntities.Timings, chan []byte, chan error)
+	StartTasksExecution(context.Context, []jobEntities.OSSTarget, jobEntities.Timings, chan jobEntities.TargetAuditMessage, chan jobEntities.TargetAuditError)
 }
 
 // IProviderScanner describes interface for single API provider scanner
@@ -22,7 +22,4 @@ type IProviderScanner interface {
 	ScanTarget(target jobEntities.Target, timeout, retries uint64) ([]byte, error)
 
 	IsActive() bool
-
-	// Sign is needed to pass task data to requesting user. Contains task type and additional data
-	Sign() []byte
 }

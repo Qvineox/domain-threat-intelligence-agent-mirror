@@ -26,7 +26,7 @@ var SupportedByShodan = []TargetType{HOST_TYPE_CIDR}
 var SupportedByIPWhoIS = []TargetType{HOST_TYPE_CIDR}
 var SupportedByCrowdSec = []TargetType{HOST_TYPE_CIDR, HOST_TYPE_URL, HOST_TYPE_DOMAIN}
 
-func NewOSSTasksFromTarget(target Target, providers []SupportedOSSProvider) []OSSTarget {
+func NewOSSTarget(target Target, providers []SupportedOSSProvider) []OSSTarget {
 	tasks := make([]OSSTarget, 0)
 
 	for _, p := range providers {
@@ -65,4 +65,14 @@ func NewOSSTasksFromTarget(target Target, providers []SupportedOSSProvider) []OS
 	}
 
 	return tasks
+}
+
+type TargetAuditMessage struct {
+	Target  Target `json:"target"`
+	Content []byte `json:"content"`
+}
+
+type TargetAuditError struct {
+	Target Target `json:"target"`
+	Error  error  `json:"error"`
 }

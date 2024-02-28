@@ -21,6 +21,10 @@ func (s *ScannerImpl) scanURL(url_ string) (body []byte, err error) {
 	request.Header.Add("x-apikey", s.Config.APIKey)
 
 	response, err := s.Client.Do(request)
+	if err != nil {
+		return nil, errors.New(fmt.Sprintf("failed to connect to VirusTotal: %s", err.Error()))
+	}
+
 	if response.StatusCode == http.StatusOK {
 		body, err = io.ReadAll(response.Body)
 		if err != nil {

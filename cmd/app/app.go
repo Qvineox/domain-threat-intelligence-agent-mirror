@@ -30,7 +30,7 @@ func StartApp(config configs.StaticConfig) error {
 	jobService := services.NewOpenSourceScannerImpl(
 		virusTotal.NewScannerImpl(config.OSSProviders.VirusTotalAPIKey, config.HTTPClients.Proxy),
 		ipQualityScore.NewScannerImpl(config.OSSProviders.IPQualityScoreAPIKey, config.HTTPClients.Proxy),
-		shodan.NewScannerImpl(config.OSSProviders.IPQualityScoreAPIKey, config.HTTPClients.Proxy),
+		shodan.NewScannerImpl(config.OSSProviders.ShodanAPIKey, config.HTTPClients.Proxy),
 		nil,
 		nil,
 	)

@@ -1,5 +1,5 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="go run" type="GoApplicationRunConfiguration" factoryName="Go Application" activateToolWindowBeforeRun="false">
+  <configuration default="false" name="go run dev" type="GoApplicationRunConfiguration" factoryName="Go Application" activateToolWindowBeforeRun="false">
     <module name="domain-threat-intelligence-agent" />
     <working_directory value="$PROJECT_DIR$" />
     <kind value="PACKAGE" />

@@ -63,7 +63,7 @@ func (j *OpenSourceScanJob) CalculateTargets() []OSSTarget {
 
 	var tasks = make([]OSSTarget, 0, len(hosts))
 	for _, h := range hosts {
-		tasks = append(tasks, NewOSSTasksFromTarget(h, j.Providers)...)
+		tasks = append(tasks, NewOSSTarget(h, j.Providers)...)
 	}
 
 	return tasks

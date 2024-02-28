@@ -7,6 +7,7 @@ import (
 	"errors"
 	"fmt"
 	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/status"
 	"log/slog"
 	"net"
@@ -17,19 +18,21 @@ type JobsServerImpl struct {
 	Service core.IOpenSourceScanner
 }
 
-func (s *JobsServerImpl) StartJob(protoJob *Job, stream Jobs_StartJobServer) error {
-	slog.Info(fmt.Sprintf("starting job '%x'", protoJob.Meta.Uuid))
-	var totalTasks, elapsedTasks uint64 = 0, 0
+func (s *JobsServerImpl) StartOSS(pj *Job, stream Jobs_StartOSSServer) error {
+	//startTime := time.Now()
+
+	slog.Info(fmt.Sprintf("starting job '%s'", pj.Meta.Uuid))
+	var totalTasks, elapsedTasks, successfulTasks uint64 = 0, 0, 0
 
 	// ctx should be used to stop scanning if stream interrupted by user client
 	ctx, cancel := context.WithCancel(context.Background())
 
-	returnChannel := make(chan []byte, 1000) // hardcoded restriction!
-	errorChannel := make(chan error, 1000)   // hardcoded restriction!
+	returnChannel := make(chan jobEntities.TargetAuditMessage, 1000) // hardcoded restriction!
+	errorChannel := make(chan jobEntities.TargetAuditError, 1000)    // hardcoded restriction!
 
-	switch protoJob.Meta.Type {
+	switch pj.Meta.Type {
 	case JobType_JOB_TYPE_OSS:
-		job, err := NewOpenSourceScanJobFromProto(protoJob)
+		job, err := NewOpenSourceScanJobFromProto(pj)
 		if err != nil {
 			cancel()
 
@@ -47,12 +50,17 @@ func (s *JobsServerImpl) StartJob(protoJob *Job, stream Jobs_StartJobServer) err
 	}
 
 	wg := &sync.WaitGroup{}
+	err := stream.SetHeader(metadata.Pairs("job_type", "oss"))
+	if err != nil {
+		cancel()
+		return status.Error(codes.Internal, "failed to set job type headers")
+	}
 
 listenJobs:
 	for {
 		select {
 		case <-stream.Context().Done():
-			slog.Warn(fmt.Sprintf("job %s cancelled from context", protoJob.Meta.Uuid))
+			slog.Warn(fmt.Sprintf("job %s cancelled from context", pj.Meta.Uuid))
 
 			cancel()
 
@@ -65,12 +73,14 @@ listenJobs:
 
 			wg.Add(1)
 
-			err := stream.Send(&HostAuditReport{
+			err = stream.Send(&TargetAuditReport{
+				Target:       newProtoFromTarget(msg.Target),
 				TasksLeft:    totalTasks - elapsedTasks - 1,
-				Content:      msg,
+				Content:      msg.Content,
 				IsSuccessful: true,
 			})
 			elapsedTasks++
+			successfulTasks++
 
 			if err != nil {
 				slog.Error("failed to return message via stream: " + err.Error())
@@ -85,9 +95,10 @@ listenJobs:
 
 			wg.Add(1)
 
-			err := stream.Send(&HostAuditReport{
+			err = stream.Send(&TargetAuditReport{
+				Target:       newProtoFromTarget(msg.Target),
 				TasksLeft:    totalTasks - elapsedTasks - 1,
-				Content:      []byte(msg.Error()),
+				Content:      []byte(msg.Error.Error()),
 				IsSuccessful: false,
 			})
 			elapsedTasks++
@@ -106,6 +117,18 @@ listenJobs:
 	}
 
 	wg.Wait()
+	slog.Info(fmt.Sprintf("finished job '%s' (completed %d out of %d tasks)", pj.Meta.Uuid, successfulTasks, totalTasks))
+
+	//stream.SetTrailer(metadata.Pairs(
+	//	"successful_tasks", strconv.FormatUint(successfulTasks, 10),
+	//	"elapsed_tasks", strconv.FormatUint(elapsedTasks, 10),
+	//	"total_tasks", strconv.FormatUint(totalTasks, 10),
+	//	"time_taken", strconv.FormatInt(int64(time.Now().Sub(startTime).Truncate(time.Second)), 10),
+	//	"job_uuid", pj.Meta.Uuid,
+	//))
+
+	// ref: https://www.geeksforgeeks.org/time-time-truncate-function-in-golang-with-examples/
+
 	return nil
 }
 
@@ -188,6 +211,13 @@ func newTargetFromProto(target *Target) jobEntities.Target {
 	return jobEntities.Target{
 		Host: target.GetHost(),
 		Type: jobEntities.TargetType(target.GetType()),
+	}
+}
+
+func newProtoFromTarget(target jobEntities.Target) *Target {
+	return &Target{
+		Host: target.Host,
+		Type: HostType(target.Type),
 	}
 }
 

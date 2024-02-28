@@ -23,6 +23,10 @@ func (s *ScannerImpl) scanURL(url_ string) (body []byte, err error) {
 	query.Add("strictness", "1") // TODO: remove constant query value
 
 	response, err := s.Client.Do(request)
+	if err != nil {
+		return nil, errors.New(fmt.Sprintf("failed to connect to IPQualityScore: %s", err.Error()))
+	}
+
 	if response.StatusCode == http.StatusOK {
 		body, err = io.ReadAll(response.Body)
 		if err != nil {
