@@ -190,9 +190,10 @@ enum HostType {
 // TargetAuditReport is used to represent Task return values. Task type and other data should be added to header.
 message TargetAuditReport {
   Target target = 1;
-  uint64 tasksLeft = 2;
-  bytes content = 3;
-  bool isSuccessful = 4;
+  OSSProvider provider = 2;
+  uint64 tasksLeft = 3;
+  bytes content = 4;
+  bool isSuccessful = 5;
 }
 
 message AgentConfig {

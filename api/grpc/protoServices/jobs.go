@@ -21,14 +21,14 @@ type JobsServerImpl struct {
 func (s *JobsServerImpl) StartOSS(pj *Job, stream Jobs_StartOSSServer) error {
 	//startTime := time.Now()
 
-	slog.Info(fmt.Sprintf("starting job '%s'", pj.Meta.Uuid))
+	slog.Info(fmt.Sprintf("starting OSS job '%s'", pj.Meta.Uuid))
 	var totalTasks, elapsedTasks, successfulTasks uint64 = 0, 0, 0
 
 	// ctx should be used to stop scanning if stream interrupted by user client
 	ctx, cancel := context.WithCancel(context.Background())
 
-	returnChannel := make(chan jobEntities.TargetAuditMessage, 1000) // hardcoded restriction!
-	errorChannel := make(chan jobEntities.TargetAuditError, 1000)    // hardcoded restriction!
+	returnChannel := make(chan jobEntities.TargetOSAuditMessage, 1000) // hardcoded restriction!
+	errorChannel := make(chan jobEntities.TargetOSAuditError, 1000)    // hardcoded restriction!
 
 	switch pj.Meta.Type {
 	case JobType_JOB_TYPE_OSS:
@@ -74,10 +74,11 @@ listenJobs:
 			wg.Add(1)
 
 			err = stream.Send(&TargetAuditReport{
-				Target:       newProtoFromTarget(msg.Target),
 				TasksLeft:    totalTasks - elapsedTasks - 1,
-				Content:      msg.Content,
 				IsSuccessful: true,
+				Target:       newProtoFromTarget(msg.Target),
+				Provider:     OSSProvider(msg.Provider),
+				Content:      msg.Content,
 			})
 			elapsedTasks++
 			successfulTasks++
@@ -96,10 +97,11 @@ listenJobs:
 			wg.Add(1)
 
 			err = stream.Send(&TargetAuditReport{
-				Target:       newProtoFromTarget(msg.Target),
 				TasksLeft:    totalTasks - elapsedTasks - 1,
-				Content:      []byte(msg.Error.Error()),
 				IsSuccessful: false,
+				Target:       newProtoFromTarget(msg.Target),
+				Provider:     OSSProvider(msg.Provider),
+				Content:      []byte(msg.Error.Error()),
 			})
 			elapsedTasks++
 

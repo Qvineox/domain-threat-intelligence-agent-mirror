@@ -67,12 +67,14 @@ func NewOSSTarget(target Target, providers []SupportedOSSProvider) []OSSTarget {
 	return tasks
 }
 
-type TargetAuditMessage struct {
-	Target  Target `json:"target"`
-	Content []byte `json:"content"`
+type TargetOSAuditMessage struct {
+	Target   Target               `json:"target"`
+	Provider SupportedOSSProvider `json:"provider"`
+	Content  []byte               `json:"content"`
 }
 
-type TargetAuditError struct {
-	Target Target `json:"target"`
-	Error  error  `json:"error"`
+type TargetOSAuditError struct {
+	Target   Target               `json:"target"`
+	Provider SupportedOSSProvider `json:"provider"`
+	Error    error                `json:"error"`
 }

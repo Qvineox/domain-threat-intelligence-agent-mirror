@@ -48,6 +48,10 @@ func (s *OpenSourceScanner) SetConfig(config entities.ScannerConfig) error {
 	return nil
 }
 
+func (s *OpenSourceScanner) GetProvider() jobEntities.SupportedOSSProvider {
+	return 999
+}
+
 func (s *OpenSourceScanner) ScanTarget(target jobEntities.Target, timeout uint64, retries uint64) ([]byte, error) {
 	return nil, errors.New("not implemented")
 }

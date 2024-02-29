@@ -47,6 +47,10 @@ func NewScannerImpl(apiKey, proxy string) *ScannerImpl {
 	}
 }
 
+func (s *ScannerImpl) GetProvider() jobEntities.SupportedOSSProvider {
+	return jobEntities.OSS_PROVIDER_IP_QUALITY_SCORE
+}
+
 func (s *ScannerImpl) ScanTarget(target jobEntities.Target, timeout, retries uint64) ([]byte, error) {
 	var content []byte
 	var err error
