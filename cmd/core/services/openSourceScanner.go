@@ -92,15 +92,16 @@ taskProcessing:
 					Error:    err,
 				}
 			} else {
+				slog.Info(fmt.Sprintf("scan completed '%s' via '%s', sending...", t.Host, scanner.GetConfig().BaseURL))
 				c <- jobEntities.TargetOSAuditMessage{
 					Provider: provider,
 					Target:   t,
 					Content:  bytes,
 				}
 			}
-
-			time.Sleep(time.Duration(timings.Delay) * time.Millisecond) // delay
 		}
+
+		time.Sleep(time.Duration(timings.Delay) * time.Millisecond) // delay
 	}
 
 	wg.Done()
