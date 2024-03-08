@@ -1,0 +1,61 @@
+version: '3.9'
+
+name: dti_stage
+
+networks:
+  internal:
+    external: false
+  web:
+    external: true
+
+services:
+  agent-01:
+    image: $IMAGE_TAG
+    container_name: dti_agent_01_stage
+    hostname: dti_agent_01
+    restart: unless-stopped
+    environment:
+      grpc_host: $GRPC_HOST
+      grpc_port: $GRPC_PORT
+
+      oss_vt_apikey: $OSS_VT_API_KEY
+      oss_ipqs_apikey: $OSS_IPQS_API_KEY
+      oss_shodan_apikey: $OSS_SHODAN_API_KEY
+      oss_crowdsec_apikey: $OSS_CROWDSEC_API_KEY
+      oss_ipwhois_apikey:
+    networks:
+      - web
+
+  agent-02:
+    image: $IMAGE_TAG
+    container_name: dti_agent_02_stage
+    hostname: dti_agent_02
+    restart: unless-stopped
+    environment:
+      grpc_host: $GRPC_HOST
+      grpc_port: $GRPC_PORT
+
+      oss_vt_apikey: $OSS_VT_API_KEY
+      oss_ipqs_apikey: $OSS_IPQS_API_KEY
+      oss_shodan_apikey: $OSS_SHODAN_API_KEY
+      oss_crowdsec_apikey: $OSS_CROWDSEC_API_KEY
+      oss_ipwhois_apikey:
+    networks:
+      - web
+
+  agent-03:
+    image: $IMAGE_TAG
+    container_name: dti_agent_03_stage
+    hostname: dti_agent_03
+    restart: unless-stopped
+    environment:
+      grpc_host: $GRPC_HOST
+      grpc_port: $GRPC_PORT
+
+      oss_vt_apikey: $OSS_VT_API_KEY
+      oss_ipqs_apikey: $OSS_IPQS_API_KEY
+      oss_shodan_apikey: $OSS_SHODAN_API_KEY
+      oss_crowdsec_apikey: $OSS_CROWDSEC_API_KEY
+      oss_ipwhois_apikey:
+    networks:
+      - web
