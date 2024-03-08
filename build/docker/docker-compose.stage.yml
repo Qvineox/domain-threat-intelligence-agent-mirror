@@ -25,6 +25,8 @@ services:
       oss_ipwhois_apikey:
     networks:
       - web
+    ports:
+      - "2412:12101"
 
   agent-02:
     image: $IMAGE_TAG
@@ -42,6 +44,8 @@ services:
       oss_ipwhois_apikey:
     networks:
       - web
+    ports:
+      - "2412:12102"
 
   agent-03:
     image: $IMAGE_TAG
@@ -59,3 +63,5 @@ services:
       oss_ipwhois_apikey:
     networks:
       - web
+    ports:
+      - "2412:12103"
