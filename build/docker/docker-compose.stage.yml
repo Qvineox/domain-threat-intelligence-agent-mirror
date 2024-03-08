@@ -26,7 +26,7 @@ services:
     networks:
       - web
     ports:
-      - "2412:12101"
+      - "12101:2412"
 
   agent-02:
     image: $IMAGE_TAG
@@ -45,7 +45,7 @@ services:
     networks:
       - web
     ports:
-      - "2412:12102"
+      - "12102:2412"
 
   agent-03:
     image: $IMAGE_TAG
@@ -64,4 +64,4 @@ services:
     networks:
       - web
     ports:
-      - "2412:12103"
+      - "12103:2412"
