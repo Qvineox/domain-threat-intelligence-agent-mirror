@@ -135,6 +135,7 @@ deploy to staging:
     - mkdir ./tls
     - cp $TLS_CRT ./tls/cert.crt
     - cp $TLS_KEY ./tls/cert.key
+    - ls ./tls
     - docker pull $IMAGE_TAG
     - docker compose -f build/docker/docker-compose.stage.yml up -d
   tags:

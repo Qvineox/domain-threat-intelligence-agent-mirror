@@ -15,11 +15,10 @@ COPY . /src
 RUN go mod tidy
 
 RUN mkdir /app_build
-RUN go build -ldflags="-s -w" -o /app_build/go_build_stage.exe ./cmd
+RUN go build -ldflags="-s -w" -o /app_build/go_build_stage ./cmd
 
 FROM alpine:3.19.1 as web_server
 
 COPY --from=builder /app_build .
-RUN mkdir configs
 
-CMD ["./go_build_stage.exe"]
+CMD ["./go_build_stage"]
