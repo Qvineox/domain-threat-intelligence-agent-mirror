@@ -133,8 +133,8 @@ deploy to staging:
     url: https://domain-threat-intel-stage.qvineox.ru
   script:
     - mkdir $CI_PROJECT_DIR/tls
-    - cp $TLS_CRT $CI_PROJECT_DIR/cert.crt
-    - cp $TLS_KEY $CI_PROJECT_DIR/cert.key
+    - cp $TLS_CRT $CI_PROJECT_DIR/tls/cert.crt
+    - cp $TLS_KEY $CI_PROJECT_DIR/tls/cert.key
     - docker pull $IMAGE_TAG
     - docker compose -f build/docker/docker-compose.stage.yml up -d
   tags:
