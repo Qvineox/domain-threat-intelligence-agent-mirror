@@ -25,7 +25,7 @@ services:
       oss_crowdsec_apikey: $OSS_CROWDSEC_API_KEY
       oss_ipwhois_apikey:
     volumes:
-      - ./tls:/tls
+      - $CI_PROJECT_DIR/tls:/tls
     networks:
       - web
     ports:
@@ -47,7 +47,7 @@ services:
       oss_crowdsec_apikey: $OSS_CROWDSEC_API_KEY
       oss_ipwhois_apikey:
     volumes:
-      - ./tls:/tls
+      - $CI_PROJECT_DIR/tls:/tls
     networks:
       - web
     ports:
@@ -69,7 +69,7 @@ services:
       oss_crowdsec_apikey: $OSS_CROWDSEC_API_KEY
       oss_ipwhois_apikey:
     volumes:
-      - ./tls:/tls
+      - $CI_PROJECT_DIR/tls:/tls
     networks:
       - web
     ports:
