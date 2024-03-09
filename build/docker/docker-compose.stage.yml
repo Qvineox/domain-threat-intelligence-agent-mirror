@@ -17,12 +17,15 @@ services:
     environment:
       grpc_host: $GRPC_HOST
       grpc_port: $GRPC_PORT
+      grpc_tls: $GRPC_TLS
 
       oss_vt_apikey: $OSS_VT_API_KEY
       oss_ipqs_apikey: $OSS_IPQS_API_KEY
       oss_shodan_apikey: $OSS_SHODAN_API_KEY
       oss_crowdsec_apikey: $OSS_CROWDSEC_API_KEY
       oss_ipwhois_apikey:
+    volumes:
+      - ./tls:/tls
     networks:
       - web
     ports:
@@ -36,12 +39,15 @@ services:
     environment:
       grpc_host: $GRPC_HOST
       grpc_port: $GRPC_PORT
+      grpc_tls: $GRPC_TLS
 
       oss_vt_apikey: $OSS_VT_API_KEY
       oss_ipqs_apikey: $OSS_IPQS_API_KEY
       oss_shodan_apikey: $OSS_SHODAN_API_KEY
       oss_crowdsec_apikey: $OSS_CROWDSEC_API_KEY
       oss_ipwhois_apikey:
+    volumes:
+      - ./tls:/tls
     networks:
       - web
     ports:
@@ -55,12 +61,15 @@ services:
     environment:
       grpc_host: $GRPC_HOST
       grpc_port: $GRPC_PORT
+      grpc_tls: $GRPC_TLS
 
       oss_vt_apikey: $OSS_VT_API_KEY
       oss_ipqs_apikey: $OSS_IPQS_API_KEY
       oss_shodan_apikey: $OSS_SHODAN_API_KEY
       oss_crowdsec_apikey: $OSS_CROWDSEC_API_KEY
       oss_ipwhois_apikey:
+    volumes:
+      - ./tls:/tls
     networks:
       - web
     ports:

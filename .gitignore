@@ -3,3 +3,4 @@
 configs/config.static.json
 /go.sum
 /build/bin/
+/tls/

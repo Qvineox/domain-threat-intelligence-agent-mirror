@@ -41,6 +41,8 @@ build staging docker image:
   image: docker:25.0.2
   extends: .registry_setup
   script:
+    - cp $TLS_CRT ./tls/cert.crt
+    - cp $TLS_KEY ./tls/cert.key
     - docker build . -t $IMAGE_TAG -f ./build/docker/Dockerfile
     - docker push $IMAGE_TAG
   tags:
@@ -57,6 +59,8 @@ build staging docker image:
 #  image: docker:25.0.2
 #  extends: .registry_setup
 #  script:
+#    - cp $TLS_CRT ./tls/cert.crt
+#    - cp $TLS_KEY ./tls/cert.key
 #    - docker build . -t $IMAGE_TAG -f ./build/docker/Dockerfile
 #    - docker push $IMAGE_TAG
 #  tags:

@@ -9,8 +9,9 @@ import (
 
 type StaticConfig struct {
 	GRPCServer struct {
-		Host string `env-required:"true" env:"grpc_host" json:"host"`
-		Port uint64 `env-required:"true" env:"grpc_port" json:"port"`
+		Host   string `env-required:"true" env:"grpc_host" json:"host"`
+		Port   uint64 `env-required:"true" env:"grpc_port" json:"port"`
+		UseTLS bool   `env:"grpc_tls" json:"use_tls"`
 	} `json:"grpc_server"`
 
 	HTTPClients struct {
