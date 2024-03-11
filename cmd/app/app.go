@@ -3,6 +3,7 @@ package app
 import (
 	"domain-threat-intelligence-agent/api/grpc/servers"
 	"domain-threat-intelligence-agent/cmd/core/services"
+	"domain-threat-intelligence-agent/cmd/oss/crowdSec"
 	"domain-threat-intelligence-agent/cmd/oss/ipQualityScore"
 	"domain-threat-intelligence-agent/cmd/oss/shodan"
 	"domain-threat-intelligence-agent/cmd/oss/virusTotal"
@@ -46,7 +47,7 @@ func StartApp(config configs.StaticConfig) error {
 		virusTotal.NewScannerImpl(config.OSSProviders.VirusTotalAPIKey, config.HTTPClients.Proxy),
 		ipQualityScore.NewScannerImpl(config.OSSProviders.IPQualityScoreAPIKey, config.HTTPClients.Proxy),
 		shodan.NewScannerImpl(config.OSSProviders.ShodanAPIKey, config.HTTPClients.Proxy),
-		nil,
+		crowdSec.NewScannerImpl(config.OSSProviders.CrowdSecAPIKey, config.HTTPClients.Proxy),
 		nil,
 	)
 
