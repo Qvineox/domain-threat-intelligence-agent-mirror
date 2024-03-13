@@ -10,6 +10,15 @@ type OSSTask struct {
 	Provider SupportedOSSProvider
 }
 
+type TargetType uint64
+
+const (
+	HOST_TYPE_CIDR TargetType = iota
+	HOST_TYPE_DOMAIN
+	HOST_TYPE_URL
+	HOST_TYPE_EMAIL
+)
+
 type SupportedOSSProvider uint64
 
 const (
