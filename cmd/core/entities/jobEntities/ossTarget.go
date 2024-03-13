@@ -62,7 +62,9 @@ func NewOSSTasks(target Target, providers []SupportedOSSProvider) []OSSTask {
 			case HOST_TYPE_CIDR:
 				scanType = scanEntities.SCAN_TYPE_OSS_IPQS_IP
 				break
-			//case HOST_TYPE_DOMAIN:
+			case HOST_TYPE_DOMAIN:
+				scanType = scanEntities.SCAN_TYPE_OSS_IPQS_DOMAIN
+				break
 			case HOST_TYPE_URL:
 				scanType = scanEntities.SCAN_TYPE_OSS_IPQS_URL
 				break

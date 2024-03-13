@@ -58,6 +58,7 @@ func (s *ScannerImpl) ScanTarget(target jobEntities.Target, timeout, retries uin
 	switch target.Type {
 	case jobEntities.HOST_TYPE_CIDR:
 		content, err = s.scanIP(target.Host)
+		break
 	default:
 		return nil, errors.New("unsupported host type by CrowdSec")
 	}

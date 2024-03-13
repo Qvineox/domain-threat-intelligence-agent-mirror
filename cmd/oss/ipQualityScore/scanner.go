@@ -58,12 +58,15 @@ func (s *ScannerImpl) ScanTarget(target jobEntities.Target, timeout, retries uin
 	switch target.Type {
 	case jobEntities.HOST_TYPE_CIDR:
 		content, err = s.scanIP(target.Host)
+		break
 	case jobEntities.HOST_TYPE_URL:
 		content, err = s.scanURL(target.Host)
-	//case jobEntities.HOST_TYPE_DOMAIN:
-	//	content, err = s.scanURL(target.Host)
+		break
+	case jobEntities.HOST_TYPE_DOMAIN:
+		content, err = s.scanURL(target.Host)
 	case jobEntities.HOST_TYPE_EMAIL:
 		content, err = s.scanEmail(target.Host)
+		break
 	default:
 		return nil, errors.New("unsupported host type by IPQualityScore")
 	}
