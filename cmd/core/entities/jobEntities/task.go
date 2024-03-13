@@ -1,12 +1,12 @@
 package jobEntities
 
 import (
-	"slices"
+	"domain-threat-intelligence-agent/cmd/core/entities/scanEntities"
 )
 
-type OSSTarget struct {
-	Target
-
+type OSSTask struct {
+	Target   Target
+	ScanType scanEntities.ScanType
 	Provider SupportedOSSProvider
 }
 
@@ -20,61 +20,97 @@ const (
 	OSS_PROVIDER_IP_WHO_IS
 )
 
-var SupportedByVirusTotal = []TargetType{HOST_TYPE_CIDR, HOST_TYPE_DOMAIN}
-var SupportedByIPQualityScore = []TargetType{HOST_TYPE_CIDR, HOST_TYPE_URL, HOST_TYPE_EMAIL}
-var SupportedByShodan = []TargetType{HOST_TYPE_CIDR}
-var SupportedByIPWhoIS = []TargetType{HOST_TYPE_CIDR}
-var SupportedByCrowdSec = []TargetType{HOST_TYPE_CIDR, HOST_TYPE_URL, HOST_TYPE_DOMAIN}
+//var SupportedByVirusTotal = []TargetType{HOST_TYPE_CIDR, HOST_TYPE_DOMAIN}
+//var SupportedByIPQualityScore = []TargetType{HOST_TYPE_CIDR, HOST_TYPE_URL, HOST_TYPE_EMAIL}
+//var SupportedByShodan = []TargetType{HOST_TYPE_CIDR}
+//var SupportedByIPWhoIS = []TargetType{HOST_TYPE_CIDR}
+//var SupportedByCrowdSec = []TargetType{HOST_TYPE_CIDR, HOST_TYPE_URL, HOST_TYPE_DOMAIN}
 
-func NewOSSTarget(target Target, providers []SupportedOSSProvider) []OSSTarget {
-	tasks := make([]OSSTarget, 0)
+// NewOSSTasks returns tasks extruded from 1 target with every provided and supported opensource provider
+func NewOSSTasks(target Target, providers []SupportedOSSProvider) []OSSTask {
+	tasks := make([]OSSTask, 0)
 
 	for _, p := range providers {
+		scanType := scanEntities.SCAN_TYPE_UNKNOWN
+
 		switch p {
 		case OSS_PROVIDER_VIRUS_TOTAL:
-			if !slices.Contains(SupportedByVirusTotal, target.Type) {
+			switch target.Type {
+			case HOST_TYPE_CIDR:
+				scanType = scanEntities.SCAN_TYPE_OSS_VT_IP
+				break
+			case HOST_TYPE_DOMAIN:
+				scanType = scanEntities.SCAN_TYPE_OSS_VT_DOMAIN
+				break
+			//case HOST_TYPE_URL:
+			//	scanType = scanEntities.SCAN_TYPE_OSS_VT_URL
+			//case HOST_TYPE_EMAIL:
+			default:
 				continue
 			}
 		case OSS_PROVIDER_IP_QUALITY_SCORE:
-			if !slices.Contains(SupportedByIPQualityScore, target.Type) {
+			switch target.Type {
+			case HOST_TYPE_CIDR:
+				scanType = scanEntities.SCAN_TYPE_OSS_IPQS_IP
+				break
+			//case HOST_TYPE_DOMAIN:
+			case HOST_TYPE_URL:
+				scanType = scanEntities.SCAN_TYPE_OSS_IPQS_URL
+				break
+			case HOST_TYPE_EMAIL:
+				scanType = scanEntities.SCAN_TYPE_OSS_IPQS_EMAIL
+				break
+			default:
 				continue
 			}
 		case OSS_PROVIDER_SHODAN:
-			if !slices.Contains(SupportedByShodan, target.Type) {
+			switch target.Type {
+			case HOST_TYPE_CIDR:
+				scanType = scanEntities.SCAN_TYPE_OSS_SHODAN_IP
+				break
+			//case HOST_TYPE_DOMAIN:
+			//case HOST_TYPE_URL:
+			//case HOST_TYPE_EMAIL:
+			default:
 				continue
 			}
 		case OSS_PROVIDER_IP_WHO_IS:
-			if !slices.Contains(SupportedByIPWhoIS, target.Type) {
+			switch target.Type {
+			case HOST_TYPE_CIDR:
+				scanType = scanEntities.SCAN_TYPE_OSS_IPWH_IP
+				break
+			//case HOST_TYPE_DOMAIN:
+			//case HOST_TYPE_URL:
+			//case HOST_TYPE_EMAIL:
+			default:
 				continue
 			}
 		case OSS_PROVIDER_CROWD_SEC:
-			if !slices.Contains(SupportedByCrowdSec, target.Type) {
+			switch target.Type {
+			case HOST_TYPE_CIDR:
+				scanType = scanEntities.SCAN_TYPE_OSS_CS_IP
+				break
+			//case HOST_TYPE_DOMAIN:
+			//case HOST_TYPE_URL:
+			//case HOST_TYPE_EMAIL:
+			default:
 				continue
 			}
 		default:
 			continue
 		}
 
-		tasks = append(tasks, OSSTarget{
-			Target: Target{
-				Host: target.Host,
-				Type: target.Type,
-			},
-			Provider: p,
-		})
+		if scanType != scanEntities.SCAN_TYPE_UNKNOWN {
+			tasks = append(tasks, OSSTask{
+				Target: Target{
+					Host: target.Host,
+					Type: target.Type,
+				},
+				ScanType: scanType,
+				Provider: p,
+			})
+		}
 	}
 
 	return tasks
-}
-
-type TargetOSAuditMessage struct {
-	Target   Target               `json:"target"`
-	Provider SupportedOSSProvider `json:"provider"`
-	Content  []byte               `json:"content"`
-}
-
-type TargetOSAuditError struct {
-	Target   Target               `json:"target"`
-	Provider SupportedOSSProvider `json:"provider"`
-	Error    error                `json:"error"`
 }

@@ -47,24 +47,24 @@ func TestJob(t *testing.T) {
 			},
 		}
 
-		tasks := job.CalculateTargets()
+		tasks := job.CalculateTasks()
 
 		require.Len(t, tasks, 7)
 
 		require.Equal(t, tasks[0].Target.Host, "10.10.20.10")
-		require.Equal(t, tasks[0].Type, jobEntities.HOST_TYPE_CIDR)
+		require.Equal(t, tasks[0].Target.Type, jobEntities.HOST_TYPE_CIDR)
 		require.Equal(t, tasks[0].Provider, jobEntities.OSS_PROVIDER_IP_QUALITY_SCORE)
 
 		require.Equal(t, tasks[1].Target.Host, "10.10.20.10")
-		require.Equal(t, tasks[1].Type, jobEntities.HOST_TYPE_CIDR)
+		require.Equal(t, tasks[1].Target.Type, jobEntities.HOST_TYPE_CIDR)
 		require.Equal(t, tasks[1].Provider, jobEntities.OSS_PROVIDER_VIRUS_TOTAL)
 
 		require.Equal(t, tasks[2].Target.Host, "10.10.20.10")
-		require.Equal(t, tasks[2].Type, jobEntities.HOST_TYPE_CIDR)
+		require.Equal(t, tasks[2].Target.Type, jobEntities.HOST_TYPE_CIDR)
 		require.Equal(t, tasks[2].Provider, jobEntities.OSS_PROVIDER_SHODAN)
 
 		require.Equal(t, tasks[6].Target.Host, "lysak.yaroslav00@yandex.ru")
-		require.Equal(t, tasks[6].Type, jobEntities.HOST_TYPE_EMAIL)
+		require.Equal(t, tasks[6].Target.Type, jobEntities.HOST_TYPE_EMAIL)
 		require.Equal(t, tasks[6].Provider, jobEntities.OSS_PROVIDER_IP_QUALITY_SCORE)
 	})
 

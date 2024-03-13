@@ -23,7 +23,7 @@ func NewOpenSourceScannerImpl(vt, ipqs, shd, cs, ipwh core.IProviderScanner) *Op
 	return &OpenSourceScannerImpl{vt: vt, ipqs: ipqs, shd: shd, cs: cs, ipwh: ipwh}
 }
 
-func (s *OpenSourceScannerImpl) StartTasksExecution(ctx context.Context, tasks []jobEntities.OSSTarget, timings jobEntities.Timings, c chan jobEntities.TargetOSAuditMessage, e chan jobEntities.TargetOSAuditError) {
+func (s *OpenSourceScannerImpl) StartTasksExecution(ctx context.Context, tasks []jobEntities.OSSTask, timings jobEntities.Timings, c chan jobEntities.TargetAuditMessage, e chan jobEntities.TargetOSAuditError) {
 	// default values for timing (abuse restrains)
 	{
 		if timings.Delay < 100 {
@@ -53,21 +53,19 @@ func (s *OpenSourceScannerImpl) StartTasksExecution(ctx context.Context, tasks [
 	close(c)
 }
 
-func startScans(ctx context.Context, scanner core.IProviderScanner, tasks []jobEntities.Target, timings jobEntities.Timings, c chan jobEntities.TargetOSAuditMessage, e chan jobEntities.TargetOSAuditError, wg *sync.WaitGroup) {
+func startScans(ctx context.Context, scanner core.IProviderScanner, tasks []jobEntities.OSSTask, timings jobEntities.Timings, c chan jobEntities.TargetAuditMessage, e chan jobEntities.TargetOSAuditError, wg *sync.WaitGroup) {
 	if tasks == nil || len(tasks) == 0 {
 		wg.Done()
 		return
 	}
-
-	provider := scanner.GetProvider()
 
 	if scanner == nil || !scanner.IsActive() {
 		slog.Warn(fmt.Sprintf("scan tasks (%d) cancelled: scanner not found or not active", len(tasks)))
 
 		for _, t := range tasks {
 			e <- jobEntities.TargetOSAuditError{
-				Target:   t,
-				Provider: provider,
+				Target:   t.Target,
+				ScanType: t.ScanType,
 				Error:    errors.New("selected scanner not found or not active"),
 			}
 		}
@@ -83,19 +81,19 @@ taskProcessing:
 			slog.Warn("scanning cancelled from job context")
 			break taskProcessing
 		default:
-			bytes, err := scanner.ScanTarget(t, timings.Timeout, timings.Retries)
+			bytes, err := scanner.ScanTarget(t.Target, timings.Timeout, timings.Retries)
 			if err != nil {
-				slog.Error(fmt.Sprintf("failed to scan target '%s' via '%s': %s", t.Host, scanner.GetConfig().BaseURL, err.Error()))
+				slog.Error(fmt.Sprintf("failed to scan target '%s' via '%d': %s", t.Target.Host, t.ScanType, err.Error()))
 				e <- jobEntities.TargetOSAuditError{
-					Provider: provider,
-					Target:   t,
+					ScanType: t.ScanType,
+					Target:   t.Target,
 					Error:    err,
 				}
 			} else {
-				slog.Info(fmt.Sprintf("scan completed '%s' via '%s', sending...", t.Host, scanner.GetConfig().BaseURL))
-				c <- jobEntities.TargetOSAuditMessage{
-					Provider: provider,
-					Target:   t,
+				slog.Info(fmt.Sprintf("scan completed '%s' via '%d', sending...", t.Target.Host, t.ScanType))
+				c <- jobEntities.TargetAuditMessage{
+					ScanType: t.ScanType,
+					Target:   t.Target,
 					Content:  bytes,
 				}
 			}
@@ -107,19 +105,19 @@ taskProcessing:
 	wg.Done()
 }
 
-func groupTasksByProvider(tasks []jobEntities.OSSTarget) (vt, ipqs, shd, cs, ipwh []jobEntities.Target) {
+func groupTasksByProvider(tasks []jobEntities.OSSTask) (vt, ipqs, shd, cs, ipwh []jobEntities.OSSTask) {
 	for _, t := range tasks {
 		switch t.Provider {
 		case jobEntities.OSS_PROVIDER_VIRUS_TOTAL:
-			vt = append(vt, t.Target)
+			vt = append(vt, t)
 		case jobEntities.OSS_PROVIDER_IP_QUALITY_SCORE:
-			ipqs = append(ipqs, t.Target)
+			ipqs = append(ipqs, t)
 		case jobEntities.OSS_PROVIDER_CROWD_SEC:
-			cs = append(cs, t.Target)
+			cs = append(cs, t)
 		case jobEntities.OSS_PROVIDER_SHODAN:
-			shd = append(shd, t.Target)
+			shd = append(shd, t)
 		case jobEntities.OSS_PROVIDER_IP_WHO_IS:
-			ipwh = append(ipwh, t.Target)
+			ipwh = append(ipwh, t)
 		default:
 			continue
 		}

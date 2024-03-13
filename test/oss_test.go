@@ -191,7 +191,7 @@ func TestScanners(t *testing.T) {
 	//	r := make(chan []byte, 1000)
 	//	e := make(chan error, 1000)
 	//
-	//	tasks := job.CalculateTargets()
+	//	tasks := job.CalculateTasks()
 	//	require.Len(t, tasks, 7)
 	//
 	//	fullScanner.StartTasksExecution(ctx, tasks, job.Timings, r, e)

@@ -27,8 +27,8 @@ func (s *JobsServerImpl) StartOSS(pj *Job, stream Jobs_StartOSSServer) error {
 	// ctx should be used to stop scanning if stream interrupted by user client
 	ctx, cancel := context.WithCancel(context.Background())
 
-	returnChannel := make(chan jobEntities.TargetOSAuditMessage, 1000) // hardcoded restriction!
-	errorChannel := make(chan jobEntities.TargetOSAuditError, 1000)    // hardcoded restriction!
+	returnChannel := make(chan jobEntities.TargetAuditMessage, 1000) // hardcoded restriction!
+	errorChannel := make(chan jobEntities.TargetOSAuditError, 1000)  // hardcoded restriction!
 
 	switch pj.Meta.Type {
 	case JobType_JOB_TYPE_OSS:
@@ -39,7 +39,7 @@ func (s *JobsServerImpl) StartOSS(pj *Job, stream Jobs_StartOSSServer) error {
 			return status.Error(codes.InvalidArgument, "could not create scanning job: "+err.Error())
 		}
 
-		tasks := job.CalculateTargets()
+		tasks := job.CalculateTasks()
 		totalTasks = uint64(len(tasks))
 
 		go s.Service.StartTasksExecution(ctx, tasks, job.Timings, returnChannel, errorChannel)
@@ -77,7 +77,7 @@ listenJobs:
 				TasksLeft:    totalTasks - elapsedTasks - 1,
 				IsSuccessful: true,
 				Target:       newProtoFromTarget(msg.Target),
-				Provider:     OSSProvider(msg.Provider),
+				ScanType:     ScanType(msg.ScanType),
 				Content:      msg.Content,
 			})
 			elapsedTasks++
@@ -100,7 +100,7 @@ listenJobs:
 				TasksLeft:    totalTasks - elapsedTasks - 1,
 				IsSuccessful: false,
 				Target:       newProtoFromTarget(msg.Target),
-				Provider:     OSSProvider(msg.Provider),
+				ScanType:     ScanType(msg.ScanType),
 				Content:      []byte(msg.Error.Error()),
 			})
 			elapsedTasks++

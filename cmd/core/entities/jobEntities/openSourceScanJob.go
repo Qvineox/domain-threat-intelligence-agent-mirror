@@ -11,7 +11,8 @@ type OpenSourceScanJob struct {
 	Providers []SupportedOSSProvider
 }
 
-func (j *OpenSourceScanJob) CalculateTargets() []OSSTarget {
+// CalculateTasks produces slice of tasks from targets and providers.
+func (j *OpenSourceScanJob) CalculateTasks() []OSSTask {
 	var exceptedHosts = make([]string, 0, len(j.Exceptions))
 	for _, v := range j.Exceptions {
 		switch v.Type {
@@ -61,9 +62,9 @@ func (j *OpenSourceScanJob) CalculateTargets() []OSSTarget {
 		hosts = targetHosts
 	}
 
-	var tasks = make([]OSSTarget, 0, len(hosts))
+	var tasks = make([]OSSTask, 0, len(hosts))
 	for _, h := range hosts {
-		tasks = append(tasks, NewOSSTarget(h, j.Providers)...)
+		tasks = append(tasks, NewOSSTasks(h, j.Providers)...)
 	}
 
 	return tasks

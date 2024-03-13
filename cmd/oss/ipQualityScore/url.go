@@ -10,7 +10,7 @@ import (
 )
 
 func (s *ScannerImpl) scanURL(url_ string) (body []byte, err error) {
-	url_ = url.PathEscape(url_)
+	url_ = url.QueryEscape(url_)
 
 	request, err := http.NewRequest("GET", s.Config.BaseURL+"/url/"+s.Config.APIKey+"/"+url_, nil)
 	if err != nil {
@@ -20,7 +20,7 @@ func (s *ScannerImpl) scanURL(url_ string) (body []byte, err error) {
 	request.Header.Add("accept", "application/json")
 
 	query := request.URL.Query()
-	query.Add("strictness", "1") // TODO: remove constant query value
+	query.Add("strictness", "1")
 
 	response, err := s.Client.Do(request)
 	if err != nil {
